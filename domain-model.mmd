@@ -14,105 +14,110 @@ classDiagram
         -ZipCode zipCode
     }
 
-    class Customer {
-        <<Entity>>
-        -CustomerId id
-        -FullName fullName
-        -BirthDate birthDate
-        -Email email
-        -Phone phone
-        -Document document
-        -Boolean promotionNotificationsAllowed
-        -Boolean archived
-        -Instant registeredAt
-        -Instant archivedAt
-        -LoyaltyPoints loyaltyPoints
-        +addLoyaltyPoints(LoyaltyPoints loyaltyPointsToAdd) void
-        +archive() void
-        +enablePromotionNotifications() void
-        +disablePromotionNotifications() void
-        +changeName(FullName newName) void
-        +changeEmail(Email newEmail) void
-        +changePhone(Phone newPhone) void
-        +changeAddress(Address newAddress)
+    class Product {
+        <<ValueObject>>
+        -ProductId id
+        -ProductName name
+        -Money price
+        -Boolean inStock
+        +checkOutOfStock()
+    }
+
+    namespace CustomerAggregate {
+        class Customer {
+            <<AggregateRoot>>
+            -CustomerId id
+            -FullName fullName
+            -BirthDate birthDate
+            -Email email
+            -Phone phone
+            -Document document
+            -Boolean promotionNotificationsAllowed
+            -Boolean archived
+            -Instant registeredAt
+            -Instant archivedAt
+            -LoyaltyPoints loyaltyPoints
+            +addLoyaltyPoints(LoyaltyPoints loyaltyPointsToAdd) void
+            +archive() void
+            +enablePromotionNotifications() void
+            +disablePromotionNotifications() void
+            +changeName(FullName newName) void
+            +changeEmail(Email newEmail) void
+            +changePhone(Phone newPhone) void
+            +changeAddress(Address newAddress)
+        }
     }
     Customer *-- Address: -address
 
-    class Product {
-        <<Entity>>
-        -ProductId id
-    }
+    namespace OrderAggregate {
+        class ShippingInfo {
+            <<ValueObject>>
+            -FullName fullName
+            -Document document
+            -Phone phone
+        }
 
-    class ShippingInfo {
-        <<ValueObject>>
-        -FullName fullName
-        -Document document
-        -Phone phone
-    }
-    ShippingInfo *-- Address: -address
+        class BillingInfo {
+            <<ValueObject>>
+            -FullName fullName
+            -Document document
+            -Phone phone
+        }
 
-    class BillingInfo {
-        <<ValueObject>>
-        -FullName fullName
-        -Document document
-        -Phone phone
-    }
-    BillingInfo *-- Address: -address
+        class OrderItem {
+            <<Entity>>
+            -OrderItemId id
+            -ProductId productId
+            -ProductName name
+            -Money price
+            -Quantity quantity
+            -Money totalAmount
+            ~ changeQuantity(Quantity newQuantity) void
+        }
 
-    class OrderItem {
-        <<Entity>>
-        -OrderItemId id
-        -ProductId productId
-        -ProductName name
-        -Money price
-        -Quantity quantity
-        -Money totalAmount
-        ~ changeQuantity(Quantity newQuantity) void
-    }
-    OrderItem --> Product
+        class OrderStatus {
+            <<enumeration>>
+            DRAFT
+            PLACED
+            PAID
+            READY
+            CANCELED
+        }
 
-    class OrderStatus {
-        <<enumeration>>
-        DRAFT
-        PLACED
-        PAID
-        READY
-        CANCELED
-    }
+        class PaymentMethod {
+            <<enumeration>>
+            CREDIT_CARD
+            GATEWAY_BALANCE
+        }
 
-    class PaymentMethod {
-        <<enumeration>>
-        CREDIT_CARD
-        GATEWAY_BALANCE
-    }
-
-    class Order {
-        <<AggregateRoot>>
-        -OrderId id
-        -CustomerId id
-        -Money totalAmount
-        -Money shippingCoast
-        -Quantity totalItems
-        -Instant placedAt
-        -Instant paidAt
-        -Instant canceledAt
-        -Instant readyAt
-        -LocalDate expectedDeliveryDate
-        +markAsPaid() void
-        +markAsReady() void
-        +cancel() void
-        +place() void
-        +isPaid() boolean
-        +isCanceled() boolean
-        +isReady() boolean
-        +isDraft() boolean
-        +isPlaced() boolean
-        +addItem(ProductId productId, ProductName productName, Money unitPrice, Quantity quantity) void
-        +changePaymentMethod(PaymentMethod)
-        +changeBilling(BillingInfo billingInfo) void
-        +changeShipping(ShippingInfo shippingInfo, Money shippingCoast, LocalDate expectedDeliveryDate) void
-        +changeItemQuantity(OrderItemId, Quantity) void
-        +removeItem(OrderItemId) void
+        class Order {
+            <<AggregateRoot>>
+            -OrderId id
+            -CustomerId id
+            -Money totalAmount
+            -Money shippingCoast
+            -Quantity totalItems
+            -Instant placedAt
+            -Instant paidAt
+            -Instant canceledAt
+            -Instant readyAt
+            -LocalDate expectedDeliveryDate
+            +markAsPaid() void
+            +markAsReady() void
+            +cancel() void
+            +place() void
+            +isPaid() boolean
+            +isCanceled() boolean
+            +isReady() boolean
+            +isDraft() boolean
+            +isPlaced() boolean
+            +addItem(ProductId productId, ProductName productName, Money unitPrice, Quantity quantity) void
+            +changePaymentMethod(PaymentMethod)
+            +changeBilling(BillingInfo billingInfo) void
+            +changeShipping(ShippingInfo shippingInfo, Money shippingCoast, LocalDate expectedDeliveryDate) void
+            +changeItemQuantity(OrderItemId, Quantity) void
+            +removeItem(OrderItemId) void
+        }
     }
     Order --> Customer
     Order *-- OrderStatus: -status
@@ -120,12 +125,6 @@ classDiagram
     Order *-- ShippingInfo: -shipping
     Order *-- BillingInfo: -billing
     Order "0..n" *-- OrderItem: -items
-
-    namespace OrderAggregate {
-        class Order
-        class OrderItem
-        class ShippingInfo
-        class BillingInfo
-        class OrderStatus
-        class PaymentMethod
-    }
+    ShippingInfo *-- Address: -address
+    BillingInfo *-- Address: -address
+    OrderItem --> Product
