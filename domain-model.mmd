@@ -3,6 +3,17 @@ title: Ordering Context
 ---
 
 classDiagram
+    class Address {
+        <<ValueObject>>
+        -String street
+        -String number
+        -String complement
+        -String neighborhood
+        -String city
+        -String state
+        -ZipCode zipCode
+    }
+
     class Customer {
         <<Entity>>
         -CustomerId id
@@ -25,14 +36,96 @@ classDiagram
         +changePhone(Phone newPhone) void
         +changeAddress(Address newAddress)
     }
-    class Address {
-        <<ValueObject>>
-        -String street
-        -String number
-        -String complement
-        -String neighborhood
-        -String city
-        -String state
-        -ZipCode zipCode
+    Customer *-- Address: -address
+
+    class Product {
+        <<Entity>>
+        -ProductId id
     }
-    Address <--* Customer: -address
+
+    class ShippingInfo {
+        <<ValueObject>>
+        -FullName fullName
+        -Document document
+        -Phone phone
+    }
+    ShippingInfo *-- Address: -address
+
+    class BillingInfo {
+        <<ValueObject>>
+        -FullName fullName
+        -Document document
+        -Phone phone
+    }
+    BillingInfo *-- Address: -address
+
+    class OrderItem {
+        <<Entity>>
+        -OrderItemId id
+        -ProductId productId
+        -ProductName name
+        -Money price
+        -Quantity quantity
+        -Money totalAmount
+        ~ changeQuantity(Quantity newQuantity) void
+    }
+    OrderItem --> Product
+
+    class OrderStatus {
+        <<enumeration>>
+        DRAFT
+        PLACED
+        PAID
+        READY
+        CANCELED
+    }
+
+    class PaymentMethod {
+        <<enumeration>>
+        CREDIT_CARD
+        GATEWAY_BALANCE
+    }
+
+    class Order {
+        <<AggregateRoot>>
+        -OrderId id
+        -CustomerId id
+        -Money totalAmount
+        -Money shippingCoast
+        -Quantity totalItems
+        -Instant placedAt
+        -Instant paidAt
+        -Instant canceledAt
+        -Instant readyAt
+        -LocalDate expectedDeliveryDate
+        +markAsPaid() void
+        +markAsReady() void
+        +cancel() void
+        +place() void
+        +isPaid() boolean
+        +isCanceled() boolean
+        +isReady() boolean
+        +isDraft() boolean
+        +isPlaced() boolean
+        +addItem(ProductId productId, ProductName productName, Money unitPrice, Quantity quantity) void
+        +changePaymentMethod(PaymentMethod)
+        +changeBilling(BillingInfo billingInfo) void
+        +changeShipping(ShippingInfo shippingInfo, Money shippingCoast, LocalDate expectedDeliveryDate) void
+        +changeItemQuantity(OrderItemId, Quantity) void
+        +removeItem(OrderItemId) void
+    }
+    Order --> Customer
+    Order *-- OrderStatus: -status
+    Order *-- PaymentMethod: -paymentMethod
+    Order *-- ShippingInfo: -shipping
+    Order *-- BillingInfo: -billing
+    Order "0..n" *-- OrderItem: -items
+
+    namespace OrderAggregate {
+        class Order
+        class OrderItem
+        class ShippingInfo
+        class BillingInfo
+        class OrderStatus
+        class PaymentMethod
+    }
