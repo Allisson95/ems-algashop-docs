@@ -37,14 +37,14 @@ classDiagram
             -Instant registeredAt
             -Instant archivedAt
             -LoyaltyPoints loyaltyPoints
-            +addLoyaltyPoints(LoyaltyPoints loyaltyPointsToAdd) void
+            +addLoyaltyPoints(LoyaltyPoints) void
             +archive() void
             +enablePromotionNotifications() void
             +disablePromotionNotifications() void
-            +changeName(FullName newName) void
-            +changeEmail(Email newEmail) void
-            +changePhone(Phone newPhone) void
-            +changeAddress(Address newAddress)
+            +changeName(FullName) void
+            +changeEmail(Email) void
+            +changePhone(Phone) void
+            +changeAddress(Address) void
         }
     }
     Customer *-- Address: -address
