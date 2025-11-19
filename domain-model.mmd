@@ -50,18 +50,25 @@ classDiagram
     Customer *-- Address: -address
 
     namespace OrderAggregate {
-        class ShippingInfo {
+        class Recipient {
             <<ValueObject>>
             -FullName fullName
             -Document document
             -Phone phone
         }
 
-        class BillingInfo {
+        class Shipping {
+            <<ValueObject>>
+            -Money shippingCost
+            -LocalDate expectedDeliveryDate
+        }
+
+        class Billing {
             <<ValueObject>>
             -FullName fullName
             -Document document
             -Phone phone
+            -Email email
         }
 
         class OrderItem {
@@ -72,7 +79,7 @@ classDiagram
             -Money price
             -Quantity quantity
             -Money totalAmount
-            ~ changeQuantity(Quantity newQuantity) void
+            ~ changeQuantity(Quantity) void
         }
 
         class OrderStatus {
@@ -95,13 +102,11 @@ classDiagram
             -OrderId id
             -CustomerId id
             -Money totalAmount
-            -Money shippingCost
             -Quantity totalItems
             -Instant placedAt
             -Instant paidAt
             -Instant canceledAt
             -Instant readyAt
-            -LocalDate expectedDeliveryDate
             +markAsPaid() void
             +markAsReady() void
             +cancel() void
@@ -111,10 +116,10 @@ classDiagram
             +isReady() boolean
             +isDraft() boolean
             +isPlaced() boolean
-            +addItem(ProductId productId, ProductName productName, Money unitPrice, Quantity quantity) void
-            +changePaymentMethod(PaymentMethod)
-            +changeBilling(BillingInfo billingInfo) void
-            +changeShipping(ShippingInfo shippingInfo, Money shippingCost, LocalDate expectedDeliveryDate) void
+            +addItem(Product, Quantity) void
+            +changePaymentMethod(PaymentMethod) void
+            +changeBilling(Billing) void
+            +changeShipping(Shipping) void
             +changeItemQuantity(OrderItemId, Quantity) void
             +removeItem(OrderItemId) void
         }
@@ -122,9 +127,10 @@ classDiagram
     Order --> Customer
     Order *-- OrderStatus: -status
     Order *-- PaymentMethod: -paymentMethod
-    Order *-- ShippingInfo: -shipping
-    Order *-- BillingInfo: -billing
+    Order *-- Shipping: -shipping
+    Order *-- Billing: -billing
     Order "0..n" *-- OrderItem: -items
-    ShippingInfo *-- Address: -address
-    BillingInfo *-- Address: -address
+    Shipping *-- Address: -address
+    Shipping *-- Recipient: -recipient
+    Billing *-- Address: -address
     OrderItem --> Product
