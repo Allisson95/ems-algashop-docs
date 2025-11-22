@@ -129,8 +129,46 @@ classDiagram
     Order *-- PaymentMethod: -paymentMethod
     Order *-- Shipping: -shipping
     Order *-- Billing: -billing
-    Order "0..n" *-- OrderItem: -items
+    Order *-- "0..n" OrderItem: -items
     Shipping *-- Address: -address
     Shipping *-- Recipient: -recipient
     Billing *-- Address: -address
     OrderItem --> Product
+
+    namespace ShoppingCartAggregate {
+        class ShoppingCart {
+            <<AggregateRoot>>
+            -ShoppingCartId id
+            -CustomerId customerId
+            -Money totalAmount
+            -Quantity totalItems
+            -Instant createdAt
+            +startShopping(CustomerId)$ ShoppingCart
+            +empty() void
+            +addItem(Product, Quantity) void
+            +removeItem(ShoppingCartItemId) void
+            +refreshItem(Product) void
+            +findItem(ShoppingCartItemId) ShoppingCartItem
+            +findItem(ProductId) ShoppingCartItem
+            +changeItemQuantity(ShoppingCartItemId, Quantity) void
+            +containsUnavailableItems() boolean
+            +isEmpty() boolean
+        }
+
+        class ShoppingCartItem {
+            <<Entity>>
+            -ShoppingCartItemId id
+            -ShoppingCartId shoppingCartId
+            -ProductId productId
+            -ProductName productName
+            -Money price
+            -Quantity quantity
+            -Money totalAmount
+            -Boolean available
+            ~ refresh(Product) void
+            ~ changeQuantity(Quantity) void
+        }
+    }
+    ShoppingCart *-- "0..n" ShoppingCartItem: items
+    ShoppingCart --> Customer
+    ShoppingCartItem --> Product
