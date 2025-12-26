@@ -46,8 +46,22 @@ classDiagram
             +changePhone(Phone) void
             +changeAddress(Address) void
         }
+
+        class CustomerRegisteredEvent {
+            <<Event>>
+            -CustomerId customerId
+            -Instant registeredAt
+        }
+
+        class CustomerArchivedEvent {
+            <<Event>>
+            -CustomerId customerId
+            -Instant archivedAt
+        }
     }
     Customer *-- Address: -address
+    Customer --> CustomerRegisteredEvent: emit
+    Customer --> CustomerArchivedEvent: emit
 
     namespace OrderAggregate {
         class Recipient {
