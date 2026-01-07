@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.1
 info:
   title: AlgaShop - Ordering
   description: AlgaShop - Ordering
@@ -9,4 +9,292 @@ servers:
   - url: 'https://api.algashop.com'
     description: Production Server
 paths:
-  
+  /api/v1/customers:
+    post:
+      summary: Register new customer
+      description: Register new customer
+      operationId: registerCustomer
+      tags:
+        - Customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerInput'
+      responses:
+        201:
+          description: Customer registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          headers:
+            Location:
+              schema:
+                type: string
+                example: '/api/v1/customers/019b962e-cebd-7910-a5df-0afe586d05fe'
+              description: URL of the newly created resource
+        400:
+          description: Invalid input, object invalid
+        409:
+          description: Conflict
+        422:
+          description: Invalid input
+        500:
+          description: Internal server error
+
+    get:
+      summary: Retrieve all customers
+      description: Retrieve all customers
+      operationId: getAllCustomers
+      tags:
+        - Customers
+      responses:
+        200:
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+        500:
+          description: Internal server error
+
+  /api/v1/customers/{customerId}:
+    get:
+      summary: Retrieve customer by ID
+      description: Retrieve customer by ID
+      operationId: getCustomerById
+      tags:
+        - Customers
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: '019b962e-cebd-7910-a5df-0afe586d05fe'
+          description: ID of the customer to retrieve
+      responses:
+        200:
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        404:
+          description: Customer not found
+        500:
+          description: Internal server error
+
+    put:
+      summary: Update customer by ID
+      description: Update customer by ID
+      operationId: updateCustomerById
+      tags:
+        - Customers
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: '019b962e-cebd-7910-a5df-0afe586d05fe'
+          description: ID of the customer to update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdateInput'
+      responses:
+        200:
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        400:
+          description: Invalid input, object invalid
+        404:
+          description: Customer not found
+        409:
+          description: Conflict
+        500:
+          description: Internal server error
+
+    delete:
+      summary: Delete customer by ID
+      description: Delete customer by ID
+      operationId: deleteCustomerById
+      tags:
+        - Customers
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: '019b962e-cebd-7910-a5df-0afe586d05fe'
+          description: ID of the customer to delete
+      responses:
+        204:
+          description: Customer deleted successfully
+        404:
+          description: Customer not found
+        500:
+          description: Internal server error
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the customer
+          example: '019b962e-cebd-7910-a5df-0afe586d05fe'
+        firstName:
+          type: string
+          description: First name of the customer
+          example: 'John'
+        lastName:
+          type: string
+          description: Last name of the customer
+          example: 'Doe'
+        email:
+          type: string
+          format: email
+          description: Email address of the customer
+          example: 'john.doe@example.com'
+        document:
+          type: string
+          description: Document associated with the customer
+          example: '12345'
+        phone:
+          type: string
+          description: Phone number of the customer
+          example: '+1234567890'
+        birthDate:
+          type: string
+          format: date
+          description: Birth date of the customer
+          example: '1980-01-01'
+        loyaltyPoints:
+          type: integer
+          description: Number of loyalty points the customer has
+          example: 1000
+        registeredAt:
+          type: string
+          format: date-time
+          description: Date and time when the customer was registered
+          example: '2021-01-01T00:00:00.000Z'
+        archivedAt:
+          type: string
+          format: date-time
+          description: Date and time when the customer was archived
+          nullable: true
+        promotionNotificationsAllowed:
+          type: boolean
+          description: Indicates whether the customer wants to receive promotion notifications
+          example: true
+        archived:
+          type: boolean
+          description: Indicates whether the customer is archived
+          example: false
+        address:
+          $ref: '#/components/schemas/Address'
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: Street address
+          example: '123 Main Street'
+        number:
+          type: string
+          description: House number or building name
+          example: '123'
+        complement:
+          type: string
+          description: Additional information about the address
+          example: 'Apt 4B'
+        neighborhood:
+          type: string
+          description: Neighborhood name
+          example: 'Central Park'
+        city:
+          type: string
+          description: City name
+          example: 'New York'
+        state:
+          type: string
+          description: State or province name
+          example: 'NY'
+        zipCode:
+          type: string
+          description: Zip code
+          example: '10001'
+
+    CustomerInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First name of the customer
+          example: 'John'
+        lastName:
+          type: string
+          description: Last name of the customer
+          example: 'Doe'
+        email:
+          type: string
+          format: email
+          description: Email address of the customer
+          example: 'john.doe@example.com'
+        document:
+          type: string
+          description: Document associated with the customer
+          example: '12345'
+        phone:
+          type: string
+          description: Phone number of the customer
+          example: '+1234567890'
+        birthDate:
+          type: string
+          format: date
+          description: Birth date of the customer
+          example: '1980-01-01'
+        promotionNotificationsAllowed:
+          type: boolean
+          description: Indicates whether the customer wants to receive promotion notifications
+          example: true
+        address:
+          $ref: '#/components/schemas/Address'
+
+    CustomerUpdateInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First name of the customer
+          example: 'John'
+        lastName:
+          type: string
+          description: Last name of the customer
+          example: 'Doe'
+        phone:
+          type: string
+          description: Phone number of the customer
+          example: '+1234567890'
+        promotionNotificationsAllowed:
+          type: boolean
+          description: Indicates whether the customer wants to receive promotion notifications
+          example: true
+        address:
+          $ref: '#/components/schemas/Address'
