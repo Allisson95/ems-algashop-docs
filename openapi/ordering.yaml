@@ -152,6 +152,7 @@ components:
   schemas:
     Customer:
       type: object
+      required: [ 'id', 'firstName', 'lastName', 'email', 'document', 'phone', 'birthDate', 'loyaltyPoints', 'registeredAt', 'archivedAt', 'promotionNotificationsAllowed', 'archived', 'address' ]
       properties:
         id:
           type: string
@@ -211,90 +212,126 @@ components:
 
     Address:
       type: object
+      required: [ 'street', 'number', 'complement', 'neighborhood', 'city', 'state', 'zipCode' ]
       properties:
         street:
           type: string
           description: Street address
           example: '123 Main Street'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         number:
           type: string
           description: House number or building name
           example: '123'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         complement:
           type: string
           description: Additional information about the address
           example: 'Apt 4B'
+          nullable: true
         neighborhood:
           type: string
           description: Neighborhood name
           example: 'Central Park'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         city:
           type: string
           description: City name
           example: 'New York'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         state:
           type: string
           description: State or province name
           example: 'NY'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         zipCode:
           type: string
           description: Zip code
           example: '10001'
+          nullable: false
+          x-validation: [ 'notBlank' ]
 
     CustomerInput:
       type: object
+      required: [ 'firstName', 'lastName', 'email', 'document', 'phone', 'birthDate', 'promotionNotificationsAllowed', 'address' ]
       properties:
         firstName:
           type: string
           description: First name of the customer
           example: 'John'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         lastName:
           type: string
           description: Last name of the customer
           example: 'Doe'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         email:
           type: string
           format: email
           description: Email address of the customer
           example: 'john.doe@example.com'
+          nullable: false
+          x-validation: [ 'notBlank', 'email' ]
         document:
           type: string
           description: Document associated with the customer
           example: '12345'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         phone:
           type: string
           description: Phone number of the customer
           example: '+1234567890'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         birthDate:
           type: string
           format: date
           description: Birth date of the customer
           example: '1980-01-01'
+          nullable: false
+          x-validation: [ 'pastDate' ]
         promotionNotificationsAllowed:
           type: boolean
           description: Indicates whether the customer wants to receive promotion notifications
           example: true
+          nullable: false
         address:
           $ref: '#/components/schemas/Address'
 
     CustomerUpdateInput:
       type: object
+      required: [ 'firstName', 'lastName', 'phone', 'promotionNotificationsAllowed', 'address' ]
       properties:
         firstName:
           type: string
           description: First name of the customer
           example: 'John'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         lastName:
           type: string
           description: Last name of the customer
           example: 'Doe'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         phone:
           type: string
           description: Phone number of the customer
           example: '+1234567890'
+          nullable: false
+          x-validation: [ 'notBlank' ]
         promotionNotificationsAllowed:
           type: boolean
           description: Indicates whether the customer wants to receive promotion notifications
           example: true
+          nullable: false
         address:
           $ref: '#/components/schemas/Address'
