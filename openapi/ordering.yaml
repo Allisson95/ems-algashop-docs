@@ -81,7 +81,7 @@ paths:
                       content:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Customer'
+                          $ref: '#/components/schemas/CustomerSummary'
                   - $ref: '#/components/schemas/Page'
         500:
           $ref: '#/components/responses/InternalServerError'
@@ -364,6 +364,37 @@ components:
           example: '10001'
           nullable: false
           x-validation: [ 'notBlank' ]
+
+    CustomerSummary:
+      type: object
+      required: [ 'id', 'firstName', 'lastName', 'email', 'phone', 'archived' ]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the customer
+          example: '019b962e-cebd-7910-a5df-0afe586d05fe'
+        firstName:
+          type: string
+          description: First name of the customer
+          example: 'John'
+        lastName:
+          type: string
+          description: Last name of the customer
+          example: 'Doe'
+        email:
+          type: string
+          format: email
+          description: Email address of the customer
+          example: 'john.doe@example.com'
+        phone:
+          type: string
+          description: Phone number of the customer
+          example: '+1234567890'
+        archived:
+          type: boolean
+          description: Indicates whether the customer is archived
+          example: false
 
     CustomerInput:
       type: object
