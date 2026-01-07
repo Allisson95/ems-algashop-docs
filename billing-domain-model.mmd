@@ -1,0 +1,138 @@
+---
+title: Billing Context
+---
+
+classDiagram
+    namespace CreditCardAggregate {
+        class CreditCard {
+            <<AggregateRoot>>
+            -UUID id
+            -Instant createdAt
+            -UUID customerId
+            -String lastNumbers
+            -String brand
+            -Integer expirationMonth
+            -Integer expirationYear
+            -String gatewayCode
+        }
+    }
+
+    namespace InvoiceAggregate {
+        class Invoice {
+            <<AggregateRoot>>
+            -UUID id
+            -String orderId
+            -UUID customerId
+            -Instant issuedAt
+            -Instant paidAt
+            -Instant canceledAt
+            -Instant expiresAt
+            -BigDecimal totalAmount
+            -String cancelationReason
+            +markAsPaid() void
+            +cancel(String reason) void
+            +isPaid() boolean
+            +isUnpaid() boolean
+            +isCanceled() boolean
+            +assignPaymentGatewayCode(String code) void
+            +changePaymentSettings(PaymentMethod, CreditCardId) void
+        }
+
+        class InvoiceStatus {
+            <<enumeration>>
+            PAID
+            UNPAID
+            CANCELED
+        }
+
+        class Payer {
+            <<ValueObject>>
+            -String fullName
+            -String email
+            -String document
+            -String phone
+        }
+
+        class Address {
+            <<ValueObject>>
+            -String street
+            -String number
+            -String complement
+            -String neighborhood
+            -String city
+            -String state
+            -String zipCode
+        }
+
+        class LineItem {
+            <<ValueObject>>
+            -Integer number
+            -String name
+            -BigDecimal amount
+        }
+
+        class PaymentSettings {
+            <<Entity>>
+            -UUID id
+            -UUID creditCardId
+            -String gatewayCode
+            ~ assignGatewayCode(String code) void
+        }
+
+        class PaymentMethod {
+            <<enumeration>>
+            CREDIT_CARD
+            GATEWAY_BALANCED
+        }
+
+        class Payment {
+            <<ValueObject>>
+            -String gatewayCode
+            -UUID invoiceId
+        }
+
+        class PaymentStatus {
+            <<enumeration>>
+            PENDING
+            PROCESSING
+            FAILED
+            REFUNDED
+            PAID
+        }
+
+        class InvoiceIssuedEvent {
+            <<Event>>
+            -UUID invoiceId
+            -String orderId
+            -UUID customerId
+            -Instant issuedOn
+        }
+
+        class InvoiceCanceledEvent {
+            <<Event>>
+            -UUID invoiceId
+            -String orderId
+            -UUID customerId
+            -Instant canceledOn
+            -String reason
+        }
+
+        class InvoicePaidEvent {
+            <<Event>>
+            -UUID invoiceId
+            -String orderId
+            -UUID customerId
+            -Instant paidOn
+        }
+    }
+    Payment --> PaymentStatus: -status
+    Payment --> PaymentMethod: -method
+    PaymentSettings --> PaymentMethod: -method
+    Payer *--> Address: -address
+    Invoice --> InvoiceStatus: -status
+    Invoice *--> Payer: -payer
+    Invoice *--> LineItem: -items
+    Invoice *--> PaymentSettings: -paymentSettings
+    Invoice ..> InvoiceIssuedEvent: -emit
+    Invoice ..> InvoiceCanceledEvent: -emit
+    Invoice ..> InvoicePaidEvent: -emit
